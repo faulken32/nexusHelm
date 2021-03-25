@@ -21,7 +21,7 @@ spec:
         {{- include "nexusHelm.selectorLabels" . | nindent 8 }}
     spec:
       volumes:
-      - name: pv-storage
+      - name: nexus
         persistentVolumeClaim:
           claimName: {{.Values.persistence.pvcName}}
       {{- with .Values.imagePullSecrets }}
@@ -30,7 +30,7 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "nexusHelm.serviceAccountName" . }}
       securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+        runAsUser: {{.Values.runAsUser}}
       containers:
         - name: nexus
           securityContext:
@@ -42,8 +42,8 @@ spec:
               containerPort: 8081
               protocol: TCP
           volumeMounts:
-            - mountPath: "/data/nexus/data/nexus-data"
-              name: pv-storage
+            - mountPath: "/nexus-data"
+              name: nexus
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
